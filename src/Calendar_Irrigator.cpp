@@ -29,11 +29,12 @@ https://console.cloud.google.com/apis/api/calendar-json.googleapis.com/credentia
 #include "app.h"
 #include "http_status.h"
 
+
 void setup();
 int read_calendar(String cmd);
 int relay_on(String cmd);
 int relay_off(String cmd);
-void update_time_remaining();
+void update_time_remaining(unsigned long now);
 void loop();
 void oauth2_loop(void);
 void calendar_loop(void);
@@ -41,17 +42,17 @@ void calendar_handler(void);
 void change_app_stage_to(App_Stage new_stage);
 void print_event_state(void);
 void print_app_error(void);
-#line 26 "c:/Users/Nick/Documents/Particle/calendar_irrigator/Calendar_Irrigator/src/Calendar_Irrigator.ino"
+#line 27 "c:/Users/Nick/Documents/Particle/calendar_irrigator/Calendar_Irrigator/src/Calendar_Irrigator.ino"
+#define DEBUG_PRINT(...) { Particle.publish( "DEBUG", String::format(__VA_ARGS__) ); }
+
 STARTUP(WiFi.selectAntenna(ANT_EXTERNAL)); 
-
-
 
 char timeRemaining[32];
 String currentState;
 
 
-unsigned long  polling_time = 0;
-unsigned long  polling_rate = 0;
+unsigned long  polling_time;
+unsigned long  polling_rate;
 
 
 void setup()
@@ -101,6 +102,11 @@ void setup()
     {
        change_app_stage_to(App_Stage::OAUTH2);
     }
+    
+    //polling_time = millis();
+    //5 min
+ 
+    
 }
  
     
@@ -119,9 +125,9 @@ int relay_off(String cmd) {
     return 0;
 }
 
-void update_time_remaining() {
+void update_time_remaining(unsigned long now) {
                                             
-    unsigned long msecs_till_action = polling_rate - (millis() - polling_time) ;
+    unsigned long msecs_till_action = polling_rate - (now - polling_time) ;
     int hours = msecs_till_action / 1000 / 3600;
     int minutes = (msecs_till_action / 1000 - (hours * 3600) )/ 60;
     int seconds = (msecs_till_action / 1000 - (hours * 3600) - (minutes * 60));
@@ -131,13 +137,16 @@ void update_time_remaining() {
 
 void loop()
 {
-    update_time_remaining();
-    
-    delay(1000);
 
-    if (millis() < (polling_time + polling_rate)) {
+   
+    unsigned long now = millis();
+    update_time_remaining(now);
+
+    
+    if ((now - polling_time) <= polling_rate) {
+
         switch (app_stage)
-            {
+        {
               
             case App_Stage::WAITING:
                 Control.relay_loop();
@@ -163,9 +172,9 @@ void loop()
             
             default:
                 break;
+
         }
-            
-       
+        delay(1000);
 
     } else {
         switch (app_stage)
@@ -342,28 +351,28 @@ void change_app_stage_to(App_Stage new_stage)
         case App_Stage::OAUTH2:
             DEBUG_PRINT("Stage changed to: OAUTH2");
             polling_time = millis();
-            polling_rate = 0;
+            polling_rate = 1000;
             break;
 
         case App_Stage::CALENDAR:
             DEBUG_PRINT("Stage: CALENDAR");
             polling_time = millis();
-            polling_rate = 0;
+            polling_rate = 1000;
             Calendar.print_error();
             break;
             
         case App_Stage::WAITING:
             DEBUG_PRINT("Stage: WAITING");
             Control.turn_off_relays();
-            polling_time = millis();
-            polling_rate = Calendar.get_time_remaining() * 1000;
+
+            polling_rate = Calendar.get_time_remaining() * 1000 ;
             break;
             
         case App_Stage::PENDING:
             DEBUG_PRINT("Stage: PENDING");
             Control.turn_off_relays();
             polling_time = millis();
-            polling_rate = Calendar.get_time_remaining() * 1000;
+            polling_rate = Calendar.get_time_remaining() * 1000 ;
             break;
             
         case App_Stage::ACTIVE:
@@ -371,7 +380,7 @@ void change_app_stage_to(App_Stage new_stage)
             Control.process_event(Calendar.get_event_title());
             currentState = "Actve: " + Calendar.get_event_title();
             polling_time = millis();
-            polling_rate = abs(Calendar.get_time_remaining() * 1000);
+            polling_rate = abs(Calendar.get_time_remaining() * 1000) * -1;
             break;
 
 
