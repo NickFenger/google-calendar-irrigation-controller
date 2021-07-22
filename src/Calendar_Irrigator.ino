@@ -84,7 +84,7 @@ void setup()
        change_app_stage_to(App_Stage::OAUTH2);
     }
     
-    //polling_time = millis();
+    polling_time = millis();
     //5 min
  
     
@@ -123,8 +123,9 @@ void loop()
     unsigned long now = millis();
     update_time_remaining(now);
 
+    unsigned long elapsed = now - polling_time; //will always be positive
     
-    if ((now - polling_time) <= polling_rate) {
+    if (elapsed <= polling_rate) {
 
         switch (app_stage)
         {
@@ -188,8 +189,11 @@ void loop()
             
             default:
                 break;
+            
+
         }   
         
+        polling_time = millis();
     }
     
 }
@@ -331,37 +335,37 @@ void change_app_stage_to(App_Stage new_stage)
     {
         case App_Stage::OAUTH2:
             DEBUG_PRINT("Stage changed to: OAUTH2");
-            polling_time = millis();
             polling_rate = 1000;
+            polling_time = millis();
             break;
 
         case App_Stage::CALENDAR:
             DEBUG_PRINT("Stage: CALENDAR");
-            polling_time = millis();
             polling_rate = 1000;
+            polling_time = millis();
             Calendar.print_error();
             break;
             
         case App_Stage::WAITING:
             DEBUG_PRINT("Stage: WAITING");
             Control.turn_off_relays();
-
             polling_rate = Calendar.get_time_remaining() * 1000 ;
+            polling_time = millis();
             break;
             
         case App_Stage::PENDING:
             DEBUG_PRINT("Stage: PENDING");
             Control.turn_off_relays();
-            polling_time = millis();
             polling_rate = Calendar.get_time_remaining() * 1000 ;
+            polling_time = millis();
             break;
             
         case App_Stage::ACTIVE:
             DEBUG_PRINT("Stage: ACTIVE");
             Control.process_event(Calendar.get_event_title());
             currentState = "Actve: " + Calendar.get_event_title();
+            polling_rate = abs(Calendar.get_time_remaining() * 1000);
             polling_time = millis();
-            polling_rate = abs(Calendar.get_time_remaining() * 1000) * -1;
             break;
 
 
