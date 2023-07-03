@@ -235,8 +235,8 @@ bool Google_Calendar::failed(void)
 //*****************************************************************************
 void Google_Calendar::print_error(void)
 {
-    Serial.println(http_error);
-    DEBUG_PRINT(http_error);
+    //Serial.println(http_error);
+    DEBUG_PRINT("HTTP ERROR: " + http_error);
 }
 
 //*****************************************************************************
@@ -276,7 +276,7 @@ int32_t Google_Calendar::get_time_remaining(void) {
         time_left = SEARCH_TIME / 1000 ;
     }
     
-        
+    /*   
     int hours = abs(time_left) / 3600;
     int minutes = (abs(time_left) - (hours * 3600) )/ 60;
     int seconds = (abs(time_left) - (hours * 3600) - (minutes * 60));
@@ -284,7 +284,7 @@ int32_t Google_Calendar::get_time_remaining(void) {
     char  statusText[32];
     sprintf(statusText, "Time left: %d:%02d:%02d", hours , minutes, seconds);
     DEBUG_PRINT(statusText);
-    
+    */
     return time_left;
     
 }

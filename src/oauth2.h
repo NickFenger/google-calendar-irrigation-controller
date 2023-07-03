@@ -108,7 +108,7 @@ class Google_OAuth2
         String refresh_token;
 
         // Waiting Timeout
-        int32_t timeout_count;
+        int32_t oauth_timeout_count;
 
 
         //  OAuth2.0 user code and access token valid time param.
@@ -137,7 +137,7 @@ class Google_OAuth2
         bool time_left(void);
         void write_token(void);
         bool read_token(void);
-        void erase_token(void);
+
 
     protected:
         //  Particle webhooks event handlers.
@@ -156,6 +156,7 @@ class Google_OAuth2
         bool authorized(void);
         bool authenticated(void);
         bool is_token_valid(void);
+        void erase_token(void);
 };
 
 #endif  //  __OAUTH2_H__

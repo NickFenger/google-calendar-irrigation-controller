@@ -20,28 +20,22 @@
 Google_OAuth2::Google_OAuth2(const String &client_id, const String &client_secret)
     : CLIENT_ID(client_id), CLIENT_SECRET(client_secret)
 {
-
-}
-
-
-void Google_OAuth2::start(void){
-        //  If the device has not been authenticated yet (no refresh token available),
-    //  then a user code will be requested to the Google servers so the user can
-    //  authorize the application to use the Google APIs (access and refresh
-    //  token granted).
+    
+    
     if (read_token())
     {
         state = OAuth2_State::REFRESH_TOKEN;
-        DEBUG_PRINT("State: Oauth2 Refresh Token");
     } 
     else
     {
         state = OAuth2_State::REQ_USER_CODE;
-        DEBUG_PRINT("State: Oauth2 Req User Code");
     } 
+
     polling_time = 0;
     is_device_subscribed = false;
 }
+
+
 
 //*****************************************************************************
 //
@@ -135,8 +129,9 @@ void Google_OAuth2::loop(void)
             subscribe_device_to(EVENT_REQ_USER_CODE);
             data = String::format("{\"client_id\":\"%s\"}", CLIENT_ID.c_str());
             Particle.publish(EVENT_REQ_USER_CODE, data, PRIVATE);
-            Serial.println("User code request sent!");
+            //Serial.println("User code request sent!");
             DEBUG_PRINT("User code request sent!");
+            oauth_timeout_count = 0;
             change_state_to(OAuth2_State::WAIT_FOR_RESPONSE);
             break;
 
@@ -164,7 +159,7 @@ void Google_OAuth2::loop(void)
                 }
                 else
                 {
-                    Serial.println("Error: User code has expired.");
+                    //Serial.println("Error: User code has expired.");
                     DEBUG_PRINT("Error: User code has expired.");
                     change_state_to(OAuth2_State::FAILED);
                 }
@@ -178,23 +173,27 @@ void Google_OAuth2::loop(void)
             data = String::format("{\"refresh_token\":\"%s\",\"client_id\":\"%s\",\"client_secret\":\"%s\"}",
                                 refresh_token.c_str(), CLIENT_ID.c_str(), CLIENT_SECRET.c_str());
             Particle.publish(EVENT_REFRESH_TOKEN, data, PRIVATE);
-            Serial.println("Refresh token request sent");
+            //Serial.println("Refresh token request sent");
             DEBUG_PRINT("Refresh token request sent");
+            oauth_timeout_count = 0;
             change_state_to(OAuth2_State::WAIT_FOR_RESPONSE);
             break;
 
         case OAuth2_State::WAIT_FOR_RESPONSE:
-            Serial.println("Waiting: OAuth2 response...");
+            //Serial.println("Waiting: OAuth2 response...");
             DEBUG_PRINT("Waiting: OAuth2 response...");            
             delay(5000);
-            /*if (Particle.connected()) timeout_count++;
-            if (timeout_count > 6) { //30 seconds
+            oauth_timeout_count++;
+            if (oauth_timeout_count > 6) { //30 seconds
                 DEBUG_PRINT("TIMEOUT oauth2 waiting for a response..."); 
                 //DEBUG_PRINT("REQ_USER_CODE Initiated");  
-                timeout_count = 0;
-                change_state_to(OAuth2_State::FAILED);
+                if (last_state == OAuth2_State::REFRESH_TOKEN) {
+                    //NJF This might be the issue
+                    change_state_to(OAuth2_State::REQ_USER_CODE); 
+                } else { 
+                    change_state_to(OAuth2_State::FAILED);
+                }
             }
-            */
             break;
         case OAuth2_State::AUTHORIZED:
         
@@ -234,7 +233,7 @@ void Google_OAuth2::response_handler(const char *event, const char *data)
             msg += ", and enter the following code: " + user_code + "\r\n";
             
            
-            Serial.println(msg);
+            //Serial.println(msg);
             delay(1000);
             DEBUG_PRINT(auth_url);
             delay(1000);
@@ -247,7 +246,7 @@ void Google_OAuth2::response_handler(const char *event, const char *data)
             break;
 
         case OAuth2_State::POLLING_AUTH:
-            Serial.println("\r\nDevice authorized!\r\n");
+            //Serial.println("\r\nDevice authorized!\r\n");
             DEBUG_PRINT("Device authorized!");
             change_state_to(OAuth2_State::AUTHORIZED);
             //  Write refresh token in memory.
@@ -255,7 +254,7 @@ void Google_OAuth2::response_handler(const char *event, const char *data)
             break;
 
         case OAuth2_State::REFRESH_TOKEN:
-            Serial.println("\r\nAccess token refreshed!\r\n");
+            //Serial.println("\r\nAccess token refreshed!\r\n");
             DEBUG_PRINT("Access token refreshed!");
             //life_time = (3 * 60 * 1000);
             change_state_to(OAuth2_State::AUTHORIZED);
@@ -268,7 +267,7 @@ void Google_OAuth2::response_handler(const char *event, const char *data)
     //  Update time to maintain the remaining lifetime  
     //  of the user code and access token consistent.
     time = millis();
-    is_device_subscribed = false;
+     is_device_subscribed = false;
     //  Unsubscribe all subscritptions handlers to make sure that
     //  unnecessary events are removed after the device has been authorized.
     Particle.unsubscribe();
@@ -307,7 +306,7 @@ void Google_OAuth2::error_handler(const char *event, const char *data)
             //  responded to the access request.   
             if (http_status_code == HTTP_PRECONDITION_REQUIRED)
             {
-                Serial.println("Authorization pending...");
+                //Serial.println("Authorization pending...");
                 DEBUG_PRINT("Authorization pending...");
             }
             else if (http_status_code == HTTP_FORBIDDEN)
@@ -340,8 +339,8 @@ void Google_OAuth2::error_handler(const char *event, const char *data)
     //  HTTP status codes greater than zero.
     if (http_status_code > 0 && http_status_code != HTTP_PRECONDITION_REQUIRED)
     {
-        Serial.println(http_error);
-        DEBUG_PRINT(http_error);
+        //Serial.println(http_error);
+        DEBUG_PRINT("HTTP ERROR: " + http_error);
         change_state_to(OAuth2_State::FAILED);
     }
 }
@@ -497,8 +496,8 @@ bool Google_OAuth2::failed(void)
 //*****************************************************************************
 void Google_OAuth2::print_error(void)
 {
-    Serial.println(http_error);
-    DEBUG_PRINT(http_error);
+    //Serial.println(http_error);
+    DEBUG_PRINT("HTTP ERROR: " + http_error);
 }
 
 //*****************************************************************************

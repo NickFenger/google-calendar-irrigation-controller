@@ -4,7 +4,7 @@
 
 #define RELAY1PIN 4 //veggie
 #define RELAY2PIN 5 //tomatoes
-#define RELAY3PIN 6  //front yard
+#define RELAY3PIN 6 //front yard
 #define RELAY4PIN 7
 
 
