@@ -235,8 +235,12 @@ bool Google_Calendar::failed(void)
 //*****************************************************************************
 void Google_Calendar::print_error(void)
 {
-    //Serial.println(http_error);
-    DEBUG_PRINT("HTTP ERROR: " + http_error);
+
+    if (http_error.length() != 0) {
+        DEBUG_PRINT(http_error);
+        //Serial.println(http_error);
+    }
+
 }
 
 //*****************************************************************************
