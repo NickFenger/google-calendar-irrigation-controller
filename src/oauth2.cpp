@@ -36,7 +36,6 @@ Google_OAuth2::Google_OAuth2(const String &client_id, const String &client_secre
 }
 
 
-
 //*****************************************************************************
 //
 //! @brief Parse webhook response and error response.
@@ -308,6 +307,12 @@ void Google_OAuth2::error_handler(const char *event, const char *data)
             {
                 //Serial.println("Authorization pending...");
                 DEBUG_PRINT("Authorization pending...");
+                delay(1000);
+                DEBUG_PRINT(auth_url);
+                delay(1000);
+                DEBUG_PRINT(user_code);
+                delay(1000);
+            
             }
             else if (http_status_code == HTTP_FORBIDDEN)
             {

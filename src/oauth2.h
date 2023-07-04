@@ -77,6 +77,7 @@ class Google_OAuth2
             char data[512];
             //  Default constructor.
             oauth2_token() : available(1), data("Empty") {};
+            
         } OAuth2_Token;
       
       
