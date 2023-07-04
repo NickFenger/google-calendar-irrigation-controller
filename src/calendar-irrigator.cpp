@@ -13,7 +13,6 @@ https://console.cloud.google.com/apis/api/calendar-json.googleapis.com/quotas?pr
 https://console.cloud.google.com/apis/api/calendar-json.googleapis.com/credentials?project=irrigation-schedule-319920
 
 */
-
 #include "utility.h"
 
 //*****************************************************************************
@@ -46,8 +45,9 @@ void calendar_handler(void);
 void change_app_stage_to(App_Stage new_stage);
 void print_event_state(void);
 void print_app_error(void);
-#line 26 "c:/Users/Nick/Documents/Particle/calendar_irrigator/Calendar_Irrigator/src/calendar-irrigator.ino"
+#line 25 "c:/Users/Nick/Documents/Particle/calendar_irrigator/Calendar_Irrigator/src/calendar-irrigator.ino"
 #define DEBUG_PRINT(...) { Particle.publish( "DEBUG", String::format(__VA_ARGS__) ); }
+
 
 STARTUP(WiFi.selectAntenna(ANT_EXTERNAL)); 
 
@@ -61,6 +61,13 @@ unsigned long  polling_rate;
 
 void setup()
 {
+    
+ OAuth2 = new Google_OAuth2(CLIENT_ID, CLIENT_SECRET);
+
+
+//Google_Calendar Calendar(CALENDAR_ID, TIME_ZONE);
+//Relay_Control Control(TIME_ZONE);
+    
     //Serial.begin();
     Particle.variable("Time Remaining", timeRemaining);
     Particle.variable("Current State", currentState);
@@ -91,7 +98,7 @@ void setup()
     
     //OAuth2.erase_token();
     
-    if (OAuth2.authenticated()) 
+    if (OAuth2->authenticated()) 
     //NJF is this right?
     {   
         //play_status_info(MP3_File::UPDATE_DEVICE
@@ -142,7 +149,10 @@ int relay_3_time(String cmd) {
 
 int force_erase_token(String cmd) {
     if (cmd.toInt() > 0) {
-        OAuth2.erase_token();
+        delete OAuth2;
+        OAuth2 = NULL;
+        OAuth2 = new Google_OAuth2(CLIENT_ID, CLIENT_SECRET);
+        OAuth2->erase_token();
         change_app_stage_to(App_Stage::OAUTH2);
     }
     return 0;
@@ -291,9 +301,9 @@ void oauth2_loop(void)
     //  Execute the OAuth2.0 authorization algorithm.
     //  OAuth2.loop() should run freely without delay
     //  until the application has been authorized.
-    OAuth2.loop();
+    OAuth2->loop();
     
-    if (OAuth2.authorized())
+    if (OAuth2->authorized())
     {
         //  In case that the access token had to be refreshed and the Calendar 
         //  stage were interrupted, then go back and finish the user request. 
@@ -305,12 +315,14 @@ void oauth2_loop(void)
         }
         else
         {
+            DEBUG_PRINT("OAuth2 WAITING");
             change_app_stage_to(App_Stage::WAITING);
             //  Only during initialization, inform the user device is ready.    
         }
     }
-    else if (OAuth2.failed())
+    else if (OAuth2->failed())
     {
+        DEBUG_PRINT("OAuth2.failed()");
         change_app_stage_to(App_Stage::FAILED);
     }
 }
@@ -333,10 +345,10 @@ void calendar_loop(void)
     {
         //  If the access token has not expired yet, use the API.
         //  Otherwise, change stage to OAuth2.0 to refresh token.
-        if (OAuth2.is_token_valid())
+        if (OAuth2->is_token_valid())
         {
             //  OAuth2 is passed to get the access token.
-            Calendar.publish(OAuth2);
+            Calendar.publish(*OAuth2);
         }
         else
         {
@@ -557,7 +569,7 @@ void print_app_error(void)
     switch (last_app_stage)
     {
         case App_Stage::OAUTH2:
-            OAuth2.print_error();
+            OAuth2->print_error();
             break;
 
         case App_Stage::CALENDAR:

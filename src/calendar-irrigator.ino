@@ -7,7 +7,6 @@ https://console.cloud.google.com/apis/api/calendar-json.googleapis.com/quotas?pr
 https://console.cloud.google.com/apis/api/calendar-json.googleapis.com/credentials?project=irrigation-schedule-319920
 
 */
-
 #include "utility.h"
 
 //*****************************************************************************
