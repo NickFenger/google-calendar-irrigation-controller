@@ -29,6 +29,8 @@ STARTUP(WiFi.selectAntenna(ANT_EXTERNAL));
 
 char timeRemaining[128];
 char currentState[32];
+char lastEvent[128];
+
 uint32_t freemem;
 
 unsigned long  polling_time;
@@ -38,7 +40,7 @@ void create_oauth2(){
     if (OAuth2 != nullptr) {
         OAuth2.reset();
     }
-OAuth2 = std::make_unique<Google_OAuth2>(CLIENT_ID, CLIENT_SECRET);
+    OAuth2 = std::make_unique<Google_OAuth2>(CLIENT_ID, CLIENT_SECRET);
 }
 
 
@@ -57,7 +59,8 @@ void setup()
     Particle.variable("Time Remaining", timeRemaining);
     Particle.variable("Current State", currentState);
     //using this particle variable to track the amount of free memory available to the system.
-    Particle.variable("Memory", freemem);
+    Particle.variable("Free Memory", freemem);
+    Particle.variable("Last Event", lastEvent);
  
     Particle.function("Read Calendar (1 read)", read_calendar);  
     Particle.function("Erase Token (1 erase)", force_erase_token); 
@@ -82,6 +85,7 @@ void setup()
     DEBUG_PRINT("Erase Token");
     
     //OAuth2.erase_token();
+    OAuth2 = nullptr;
     create_oauth2();
 
     if (OAuth2->authenticated()) 
@@ -203,13 +207,16 @@ void loop()
                 break;
                 
            case App_Stage::FAILED:
-                Control.turn_off_relays();
+                
                 delay(1000);
-                DEBUG_PRINT("Press Reset Button");
-                delay(15 * 60 * 1000);
+                DEBUG_PRINT("OAUTH2 FAILED!!! Attempting automatic reset ");
+                delay(1000);
+                //delay(15 * 60 * 1000);
                 print_app_error();
-                Control.turn_off_relays();
-                Control.relay_loop();
+                delay(1000);
+                create_oauth2();
+                change_app_stage_to(App_Stage::OAUTH2);
+                
                 break;
             
             default:
@@ -307,9 +314,7 @@ void oauth2_loop(void)
     else if (OAuth2->failed())
     {
         DEBUG_PRINT("OAuth2.failed()");
-        create_oauth2();
-        change_app_stage_to(App_Stage::OAUTH2);
-        //change_app_stage_to(App_Stage::FAILED);
+        change_app_stage_to(App_Stage::FAILED);
     }
 }
 
@@ -363,6 +368,8 @@ void calendar_handler(void)
                 //this will turn on any relays
                 change_app_stage_to(App_Stage::ACTIVE);
                 sprintf(currentState, "Actve: " + Calendar.get_event_title());
+                time_t time_status = Time.now();
+                sprintf(lastEvent, "%s %s", Calendar.get_event_title(), Time.format(time_status,"%Y-%m-%d %H:%M:%S"));
             } else {
                 //Control.process_event( Calendar.get_event_title() );
                 change_app_stage_to(App_Stage::PENDING);
@@ -495,10 +502,10 @@ void change_app_stage_to(App_Stage new_stage)
     else if (new_stage == App_Stage::FAILED)
     {
         //  In case of failure, inform the user.
-        Control.turn_off_relays();
-        //Serial.println("App Stage Failure");
+        //Control.turn_off_relays();
+        //Serial.println("Oauth2 Stage Failure");
         delay(1000);
-        DEBUG_PRINT("App Stage Failure");
+        DEBUG_PRINT("Oauth2 Stage Failure");
     }
 }
 
