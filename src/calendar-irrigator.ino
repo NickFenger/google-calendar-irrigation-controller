@@ -41,6 +41,20 @@ void create_oauth2(){
         OAuth2.reset();
     }
     OAuth2 = std::make_unique<Google_OAuth2>(CLIENT_ID, CLIENT_SECRET);
+    
+    if (OAuth2->authenticated()) 
+    //NJF is this right?
+    {   
+        //play_status_info(MP3_File::UPDATE_DEVICE
+        //Serial.println("Oauth2 already authenicated");
+        DEBUG_PRINT("Oauth2 already authenicated");
+        change_app_stage_to(App_Stage::CALENDAR);
+        //change_app_stage_to(App_Stage::OAUTH2);
+    }
+    else
+    {
+       change_app_stage_to(App_Stage::OAUTH2);
+    }
 }
 
 
@@ -88,19 +102,6 @@ void setup()
     OAuth2 = nullptr;
     create_oauth2();
 
-    if (OAuth2->authenticated()) 
-    //NJF is this right?
-    {   
-        //play_status_info(MP3_File::UPDATE_DEVICE
-        //Serial.println("Oauth2 already authenicated");
-        DEBUG_PRINT("Oauth2 already authenicated");
-        change_app_stage_to(App_Stage::CALENDAR);
-        //change_app_stage_to(App_Stage::OAUTH2);
-    }
-    else
-    {
-       change_app_stage_to(App_Stage::OAUTH2);
-    }
     
     polling_time = millis();
  
@@ -139,9 +140,8 @@ int relay_3_time(String cmd) {
 
 int force_erase_token(String cmd) {
     if (cmd.toInt() > 0) {
-    
         create_oauth2();
-        change_app_stage_to(App_Stage::OAUTH2);
+
     }
     return 0;
 }
@@ -215,7 +215,7 @@ void loop()
                 print_app_error();
                 delay(1000);
                 create_oauth2();
-                change_app_stage_to(App_Stage::OAUTH2);
+                
                 
                 break;
             
