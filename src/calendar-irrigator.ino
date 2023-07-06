@@ -29,22 +29,25 @@ STARTUP(WiFi.selectAntenna(ANT_EXTERNAL));
 
 char timeRemaining[128];
 char currentState[32];
-String lastEvent;
+char lastEvent[128];
 
 uint32_t freemem;
 
 unsigned long  polling_time;
 unsigned long  polling_rate;
 
-void create_oauth2(){
+void create_oauth2(bool eraseToken = false){
     if (OAuth2 != nullptr) {
         DEBUG_PRINT("Oauth2 Reset Initiated");
         delay(1000);
         OAuth2.reset();
     }
-    DEBUG_PRINT("Initializing Oauth2");
+    DEBUG_PRINT("Initializing Oauth2...");
     delay(1000);
+    
     OAuth2 = std::make_unique<Google_OAuth2>(CLIENT_ID, CLIENT_SECRET);
+    
+    if (eraseToken) OAuth2->erase_token();
     
     if (OAuth2->authenticated()) 
     //NJF is this right?
@@ -60,6 +63,7 @@ void create_oauth2(){
     {
        change_app_stage_to(App_Stage::OAUTH2);
     }
+
 }
 
 
@@ -96,17 +100,16 @@ void setup()
    
     Time.zone(TIME_ZONE);
     Time.setFormat(TIME_FORMAT_ISO8601_FULL);
-   
+    polling_time = millis();
     //Time.beginDST();
     //time_t time_status = Time.now();
     //DEBUG_PRINT(Time.format(time_status,"%Y-%m-%d %H:%M:%S"));
     //DEBUG_PRINT(Time.format(time_status, TIME_FORMAT_ISO8601_FULL));
     //OAuth2.erase_token();
     OAuth2 = nullptr;
-    create_oauth2();
-
+    create_oauth2(true);
     
-    polling_time = millis();
+
  
 }
  
@@ -213,7 +216,7 @@ void loop()
            case App_Stage::FAILED:
                 
                 delay(1000);
-                DEBUG_PRINT("OAUTH2 FAILED!!! Attempting automatic reset ");
+                DEBUG_PRINT("Attempting Oauth2 reset...");
                 delay(1000);
                 //delay(15 * 60 * 1000);
                 print_app_error();
@@ -317,7 +320,7 @@ void oauth2_loop(void)
     }
     else if (OAuth2->failed())
     {
-        DEBUG_PRINT("OAuth2.failed()");
+        DEBUG_PRINT("OAuth2_loop Failed");
         delay(1000);
         change_app_stage_to(App_Stage::FAILED);
     }
@@ -373,12 +376,15 @@ void calendar_handler(void)
                 //this will turn on any relays
                 change_app_stage_to(App_Stage::ACTIVE);
                 sprintf(currentState, "Actve: " + Calendar.get_event_title());
-                time_t time_status = Time.now();
-                lastEvent = Time.format(time_status,"%Y-%m-%d %H:%M:%S");
+                sprintf(lastEvent, "Actve: " + Calendar.get_status_text());
+                //time_t time_status = Time.now();
+                //lastEvent = Time.format(time_status,"%Y-%m-%d %H:%M:%S");
+                //sprintf(lastEvent, Time.format(Calendar.get_event_start_datetime(),"%Y-%m-%d %H:%M"));
             } else {
                 //Control.process_event( Calendar.get_event_title() );
                 change_app_stage_to(App_Stage::PENDING);
                 sprintf(currentState, "Pending: " + Calendar.get_event_title());
+                sprintf(lastEvent, "Pending: " + Calendar.get_status_text());
             }
 
         } else {
@@ -393,6 +399,8 @@ void calendar_handler(void)
     }
     else
     {
+        DEBUG_PRINT("Calendar Handler Failed");
+        delay(1000);
         change_app_stage_to(App_Stage::FAILED);
     }
 }

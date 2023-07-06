@@ -332,6 +332,11 @@ String Google_Calendar::get_event_title(void)
     return event_title;
 }
 
+String Google_Calendar::get_status_text(void)
+{
+    return statusText;
+}
+
 time_t Google_Calendar::convert_datetime(String event_date_time) {
     //  The event start date and time is a string RFC3339 timestamp.
     //  i.e. 2011-06-03T10:00:00-07:00.
@@ -345,7 +350,7 @@ time_t Google_Calendar::convert_datetime(String event_date_time) {
     int sec = split_string(event_date_time, event_date_time.charAt(19), index, last_index).toInt();
     time_t event_time = unix_time(year, month, day, hour, min, sec);
     //  Change to UTC+0:00 since the unix timestamp already considers the user time zone.
-    char  statusText[32];
+    
     sprintf(statusText, "%d-%d-%d %d:%02d:%02d", year,month,day,hour,min,sec);
     delay(1000);
     DEBUG_PRINT(statusText);
