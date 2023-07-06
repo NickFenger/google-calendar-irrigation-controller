@@ -34,6 +34,13 @@ uint32_t freemem;
 unsigned long  polling_time;
 unsigned long  polling_rate;
 
+void create_oauth2(){
+    if (OAuth2 != nullptr) {
+        OAuth2.reset();
+    }
+OAuth2 = std::make_unique<Google_OAuth2>(CLIENT_ID, CLIENT_SECRET);
+}
+
 
 void setup()
 {
@@ -41,7 +48,7 @@ void setup()
  //OAuth2 = new Google_OAuth2(CLIENT_ID, CLIENT_SECRET);
 
 //auto OAuth2 = std::make_unique<Google_OAuth2>(CLIENT_ID, CLIENT_SECRET);
-std::unique_ptr<Google_OAuth2> OAuth2(new Google_OAuth2(CLIENT_ID, CLIENT_SECRET));
+
 
 //Google_Calendar Calendar(CALENDAR_ID, TIME_ZONE);
 //Relay_Control Control(TIME_ZONE);
@@ -75,7 +82,8 @@ std::unique_ptr<Google_OAuth2> OAuth2(new Google_OAuth2(CLIENT_ID, CLIENT_SECRET
     DEBUG_PRINT("Erase Token");
     
     //OAuth2.erase_token();
-    
+    create_oauth2();
+
     if (OAuth2->authenticated()) 
     //NJF is this right?
     {   
@@ -127,15 +135,8 @@ int relay_3_time(String cmd) {
 
 int force_erase_token(String cmd) {
     if (cmd.toInt() > 0) {
-       OAuth2.reset();
-       //OAuth2 = nullptr;
-       std::unique_ptr<Google_OAuth2> OAuth2(new Google_OAuth2(CLIENT_ID, CLIENT_SECRET));
-        /*delete OAuth2;
-        
-        OAuth2 = NULL;
-        OAuth2 = new Google_OAuth2(CLIENT_ID, CLIENT_SECRET);*/
-        
-        //OAuth2->erase_token();
+    
+        create_oauth2();
         change_app_stage_to(App_Stage::OAUTH2);
     }
     return 0;
@@ -306,7 +307,9 @@ void oauth2_loop(void)
     else if (OAuth2->failed())
     {
         DEBUG_PRINT("OAuth2.failed()");
-        change_app_stage_to(App_Stage::FAILED);
+        create_oauth2();
+        change_app_stage_to(App_Stage::OAUTH2);
+        //change_app_stage_to(App_Stage::FAILED);
     }
 }
 
