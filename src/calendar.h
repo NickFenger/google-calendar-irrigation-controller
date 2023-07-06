@@ -43,7 +43,7 @@ class Google_Calendar
         int32_t event_length;
         
         bool event_pending;
-        
+        char statusText[32];
         
         //  Http status code and error response returned from webhooks.
         String http_error;
@@ -72,8 +72,10 @@ class Google_Calendar
         String get_event_location(void);
         time_t get_event_start_datetime(void);
         time_t get_event_end_datetime(void);
+        String get_status_text(void);
 
         int32_t get_time_remaining(void);
+        
 
 };
 
