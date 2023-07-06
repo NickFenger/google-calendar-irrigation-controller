@@ -38,8 +38,12 @@ unsigned long  polling_rate;
 
 void create_oauth2(){
     if (OAuth2 != nullptr) {
+        DEBUG_PRINT("Oauth2 Reset Initiated");
+        delay(1000);
         OAuth2.reset();
     }
+    DEBUG_PRINT("Initializing Oauth2");
+    delay(1000);
     OAuth2 = std::make_unique<Google_OAuth2>(CLIENT_ID, CLIENT_SECRET);
     
     if (OAuth2->authenticated()) 
@@ -48,6 +52,7 @@ void create_oauth2(){
         //play_status_info(MP3_File::UPDATE_DEVICE
         //Serial.println("Oauth2 already authenicated");
         DEBUG_PRINT("Oauth2 already authenicated");
+        delay(1000);
         change_app_stage_to(App_Stage::CALENDAR);
         //change_app_stage_to(App_Stage::OAUTH2);
     }
@@ -96,8 +101,6 @@ void setup()
     //time_t time_status = Time.now();
     //DEBUG_PRINT(Time.format(time_status,"%Y-%m-%d %H:%M:%S"));
     //DEBUG_PRINT(Time.format(time_status, TIME_FORMAT_ISO8601_FULL));
-    DEBUG_PRINT("Erase Token");
-    
     //OAuth2.erase_token();
     OAuth2 = nullptr;
     create_oauth2();
@@ -175,6 +178,7 @@ void loop()
     
     if ((polling_rate > (60 * 60 * 1000)) && (app_stage == App_Stage::ACTIVE) ) {
         DEBUG_PRINT("Max Event Time Exceeded");
+        delay(1000);
         change_app_stage_to(App_Stage::EVENT_TOO_LONG);
     }
     
@@ -213,7 +217,6 @@ void loop()
                 delay(1000);
                 //delay(15 * 60 * 1000);
                 print_app_error();
-                delay(1000);
                 create_oauth2();
                 
                 
@@ -307,6 +310,7 @@ void oauth2_loop(void)
         else
         {
             DEBUG_PRINT("OAuth2 WAITING");
+            delay(1000);
             change_app_stage_to(App_Stage::WAITING);
             //  Only during initialization, inform the user device is ready.    
         }
@@ -314,6 +318,7 @@ void oauth2_loop(void)
     else if (OAuth2->failed())
     {
         DEBUG_PRINT("OAuth2.failed()");
+        delay(1000);
         change_app_stage_to(App_Stage::FAILED);
     }
 }
@@ -504,8 +509,9 @@ void change_app_stage_to(App_Stage new_stage)
         //  In case of failure, inform the user.
         //Control.turn_off_relays();
         //Serial.println("Oauth2 Stage Failure");
-        delay(1000);
+        
         DEBUG_PRINT("Oauth2 Stage Failure");
+        delay(1000);
     }
 }
 
