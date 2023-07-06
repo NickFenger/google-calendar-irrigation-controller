@@ -237,15 +237,12 @@ void loop()
                 break;
                 
            case App_Stage::FAILED:
-                
+                print_app_error();
                 delay(1000);
                 DEBUG_PRINT("Attempting Oauth2 reset...");
                 delay(1000);
                 //delay(15 * 60 * 1000);
-                print_app_error();
                 create_oauth2();
-                
-                
                 break;
             
             default:
@@ -462,7 +459,6 @@ void change_app_stage_to(App_Stage new_stage)
             DEBUG_PRINT("Stage: CALENDAR");
             polling_rate = 1000;
             polling_time = millis();
-            Calendar.print_error();
             break;
             
         case App_Stage::WAITING:
