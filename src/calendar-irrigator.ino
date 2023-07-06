@@ -47,7 +47,6 @@ void create_oauth2(bool eraseToken = false){
     
     OAuth2 = std::make_unique<Google_OAuth2>(CLIENT_ID, CLIENT_SECRET);
     
-    if (eraseToken) OAuth2->erase_token();
     
     if (OAuth2->authenticated()) 
     //NJF is this right?
@@ -61,6 +60,7 @@ void create_oauth2(bool eraseToken = false){
     }
     else
     {
+       if (eraseToken) OAuth2->erase_token();
        change_app_stage_to(App_Stage::OAUTH2);
     }
 
@@ -146,8 +146,7 @@ int relay_3_time(String cmd) {
 
 int force_erase_token(String cmd) {
     if (cmd.toInt() > 0) {
-        create_oauth2();
-
+        create_oauth2(true);
     }
     return 0;
 }
@@ -401,7 +400,7 @@ void calendar_handler(void)
     {
         DEBUG_PRINT("Calendar Handler Failed");
         delay(1000);
-        change_app_stage_to(App_Stage::FAILED);
+        change_app_stage_to(App_Stage::OAUTH2);
     }
 }
 

@@ -28,7 +28,6 @@ https://console.cloud.google.com/apis/api/calendar-json.googleapis.com/credentia
 #include "http_status.h"
 
 
-void create_oauth2();
 void setup();
 int read_calendar(String cmd);
 int relay_on(String cmd);
@@ -61,7 +60,7 @@ uint32_t freemem;
 unsigned long  polling_time;
 unsigned long  polling_rate;
 
-void create_oauth2(){
+void create_oauth2(bool eraseToken = false){
     if (OAuth2 != nullptr) {
         DEBUG_PRINT("Oauth2 Reset Initiated");
         delay(1000);
@@ -71,7 +70,7 @@ void create_oauth2(){
     delay(1000);
     
     OAuth2 = std::make_unique<Google_OAuth2>(CLIENT_ID, CLIENT_SECRET);
-    OAuth2->erase_token();
+    
     
     if (OAuth2->authenticated()) 
     //NJF is this right?
@@ -81,10 +80,11 @@ void create_oauth2(){
         DEBUG_PRINT("Oauth2 already authenicated");
         delay(1000);
         change_app_stage_to(App_Stage::CALENDAR);
-        change_app_stage_to(App_Stage::OAUTH2);
+        //change_app_stage_to(App_Stage::OAUTH2);
     }
     else
     {
+       if (eraseToken) OAuth2->erase_token();
        change_app_stage_to(App_Stage::OAUTH2);
     }
 
@@ -124,17 +124,16 @@ void setup()
    
     Time.zone(TIME_ZONE);
     Time.setFormat(TIME_FORMAT_ISO8601_FULL);
-   
+    polling_time = millis();
     //Time.beginDST();
     //time_t time_status = Time.now();
     //DEBUG_PRINT(Time.format(time_status,"%Y-%m-%d %H:%M:%S"));
     //DEBUG_PRINT(Time.format(time_status, TIME_FORMAT_ISO8601_FULL));
     //OAuth2.erase_token();
     OAuth2 = nullptr;
-    create_oauth2();
-
+    create_oauth2(true);
     
-    polling_time = millis();
+
  
 }
  
@@ -171,8 +170,7 @@ int relay_3_time(String cmd) {
 
 int force_erase_token(String cmd) {
     if (cmd.toInt() > 0) {
-        create_oauth2();
-
+        create_oauth2(true);
     }
     return 0;
 }
@@ -401,13 +399,15 @@ void calendar_handler(void)
                 //this will turn on any relays
                 change_app_stage_to(App_Stage::ACTIVE);
                 sprintf(currentState, "Actve: " + Calendar.get_event_title());
+                sprintf(lastEvent, "Actve: " + Calendar.get_status_text());
                 //time_t time_status = Time.now();
                 //lastEvent = Time.format(time_status,"%Y-%m-%d %H:%M:%S");
-                sprintf(lastEvent, Time.format(Calendar.get_event_start_datetime(),"%Y-%m-%d %H:%M"));
+                //sprintf(lastEvent, Time.format(Calendar.get_event_start_datetime(),"%Y-%m-%d %H:%M"));
             } else {
                 //Control.process_event( Calendar.get_event_title() );
                 change_app_stage_to(App_Stage::PENDING);
                 sprintf(currentState, "Pending: " + Calendar.get_event_title());
+                sprintf(lastEvent, "Pending: " + Calendar.get_status_text());
             }
 
         } else {
@@ -424,7 +424,7 @@ void calendar_handler(void)
     {
         DEBUG_PRINT("Calendar Handler Failed");
         delay(1000);
-        change_app_stage_to(App_Stage::FAILED);
+        change_app_stage_to(App_Stage::OAUTH2);
     }
 }
 
