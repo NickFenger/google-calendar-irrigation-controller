@@ -1,2 +1,8 @@
 apikeys.h
 target/
+target/3.0.0/photon/Calendar_Irrigator.bin
+target/3.0.0/photon/Calendar_Irrigator.bin.no_crc
+target/3.0.0/photon/Calendar_Irrigator.elf
+target/3.0.0/photon/Calendar_Irrigator.hex
+target/3.0.0/photon/Calendar_Irrigator.lst
+target/3.0.0/photon/Calendar_Irrigator.map
