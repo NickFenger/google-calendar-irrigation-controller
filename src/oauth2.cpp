@@ -345,8 +345,14 @@ void Google_OAuth2::error_handler(const char *event, const char *data)
     if (http_status_code > 0 && http_status_code != HTTP_PRECONDITION_REQUIRED)
     {
         //Serial.println(http_error);
-        DEBUG_PRINT("HTTP ERROR: " + http_error);
+        if (http_error != "")
+        {
+            DEBUG_PRINT(http_error);
+            
+        }
+
         change_state_to(OAuth2_State::FAILED);
+        
     }
 }
 
@@ -502,7 +508,12 @@ bool Google_OAuth2::failed(void)
 void Google_OAuth2::print_error(void)
 {
     //Serial.println(http_error);
-    DEBUG_PRINT("HTTP ERROR: " + http_error);
+    if (http_error != "")
+        {
+            DEBUG_PRINT( http_error);
+
+        }
+
 }
 
 //*****************************************************************************
