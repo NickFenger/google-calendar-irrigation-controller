@@ -29,7 +29,7 @@ STARTUP(WiFi.selectAntenna(ANT_EXTERNAL));
 
 char timeRemaining[128];
 char currentState[32];
-char lastEvent[128];
+String lastEvent;
 
 uint32_t freemem;
 
@@ -369,7 +369,7 @@ void calendar_handler(void)
                 change_app_stage_to(App_Stage::ACTIVE);
                 sprintf(currentState, "Actve: " + Calendar.get_event_title());
                 time_t time_status = Time.now();
-                sprintf(lastEvent, "%s %s", Calendar.get_event_title(), Time.format(time_status,"%Y-%m-%d %H:%M:%S"));
+                lastEvent = Time.format(time_status,"%Y-%m-%d %H:%M:%S");
             } else {
                 //Control.process_event( Calendar.get_event_title() );
                 change_app_stage_to(App_Stage::PENDING);
