@@ -372,7 +372,7 @@ void calendar_handler(void)
                 //this will turn on any relays
                 change_app_stage_to(App_Stage::ACTIVE);
                 sprintf(currentState, "Actve: " + Calendar.get_event_title());
-                sprintf(lastEvent, "Actve: " + Calendar.get_status_text());
+                sprintf(lastEvent, Calendar.get_status_text() + " " + Calendar.get_event_title());
                 //time_t time_status = Time.now();
                 //lastEvent = Time.format(time_status,"%Y-%m-%d %H:%M:%S");
                 //sprintf(lastEvent, Time.format(Calendar.get_event_start_datetime(),"%Y-%m-%d %H:%M"));
@@ -380,7 +380,7 @@ void calendar_handler(void)
                 //Control.process_event( Calendar.get_event_title() );
                 change_app_stage_to(App_Stage::PENDING);
                 sprintf(currentState, "Pending: " + Calendar.get_event_title());
-                sprintf(lastEvent, "Pending: " + Calendar.get_status_text());
+                
             }
 
         } else {
