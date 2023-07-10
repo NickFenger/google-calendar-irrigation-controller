@@ -3,9 +3,9 @@
 #include "relaycontrol.h"
 
 #define RELAY1PIN 4 //veggie
-#define RELAY2PIN 5 //tomatoes
+#define RELAY2PIN 7 //tomatoes
 #define RELAY3PIN 6 //front yard
-#define RELAY4PIN 7 //potted flowers
+#define RELAY4PIN 5 //potted flowers
 
 
 
