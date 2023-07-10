@@ -14,11 +14,13 @@ class Relay_Control
         bool relay1_LastState;
         bool relay2_LastState;
         bool relay3_LastState;
+        bool relay4_LastState;
         
         bool relay1;
         bool relay2;
         bool relay3;
-    
+        bool relay4;
+            
         bool timerState;
         
         uint32_t lastUpdateTime;
@@ -28,6 +30,7 @@ class Relay_Control
         bool relay1TimerActive(); 
         bool relay2TimerActive(); 
         bool relay3TimerActive(); 
+        bool relay4TimerActive(); 
  
         
     protected:
