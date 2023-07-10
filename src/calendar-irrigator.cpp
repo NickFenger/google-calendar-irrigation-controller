@@ -35,6 +35,7 @@ int relay_off(String cmd);
 int relay_1_time(String cmd);
 int relay_2_time(String cmd);
 int relay_3_time(String cmd);
+int relay_4_time(String cmd);
 int force_erase_token(String cmd);
 void manual_relay_mode(int relay_num, int run_time);
 void update_time_remaining(unsigned long now);
@@ -119,6 +120,7 @@ void setup()
     Particle.function("Relay 1 Min", relay_1_time);
     Particle.function("Relay 2 Min", relay_2_time); 
     Particle.function("Relay 3 Min", relay_3_time); 
+    Particle.function("Relay 4 Min", relay_4_time); 
 
 
    
@@ -165,6 +167,11 @@ int relay_2_time(String cmd) {
 
 int relay_3_time(String cmd) {
     manual_relay_mode(3, cmd.toInt());
+    return 0;
+}
+
+int relay_4_time(String cmd) {
+    manual_relay_mode(4, cmd.toInt());
     return 0;
 }
 
@@ -396,7 +403,7 @@ void calendar_handler(void)
                 //this will turn on any relays
                 change_app_stage_to(App_Stage::ACTIVE);
                 sprintf(currentState, "Actve: " + Calendar.get_event_title());
-                sprintf(lastEvent, "Actve: " + Calendar.get_status_text());
+                sprintf(lastEvent, Calendar.get_status_text() + " " + Calendar.get_event_title());
                 //time_t time_status = Time.now();
                 //lastEvent = Time.format(time_status,"%Y-%m-%d %H:%M:%S");
                 //sprintf(lastEvent, Time.format(Calendar.get_event_start_datetime(),"%Y-%m-%d %H:%M"));
@@ -404,7 +411,7 @@ void calendar_handler(void)
                 //Control.process_event( Calendar.get_event_title() );
                 change_app_stage_to(App_Stage::PENDING);
                 sprintf(currentState, "Pending: " + Calendar.get_event_title());
-                sprintf(lastEvent, "Pending: " + Calendar.get_status_text());
+                
             }
 
         } else {
