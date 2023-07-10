@@ -95,6 +95,7 @@ void setup()
     Particle.function("Relay 1 Min", relay_1_time);
     Particle.function("Relay 2 Min", relay_2_time); 
     Particle.function("Relay 3 Min", relay_3_time); 
+    Particle.function("Relay 4 Min", relay_4_time); 
 
 
    
@@ -141,6 +142,11 @@ int relay_2_time(String cmd) {
 
 int relay_3_time(String cmd) {
     manual_relay_mode(3, cmd.toInt());
+    return 0;
+}
+
+int relay_4_time(String cmd) {
+    manual_relay_mode(4, cmd.toInt());
     return 0;
 }
 

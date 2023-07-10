@@ -18,11 +18,13 @@ Relay_Control::Relay_Control(const int8_t &time_zone)
     relay1_LastState = false;
     relay2_LastState = false;
     relay3_LastState = false;
+    relay4_LastState = false;
     
     
     relay1 = false;
     relay2 = false;
     relay3 = false;
+    relay4 = false;
 
 
     timerState = false;
@@ -47,6 +49,7 @@ void Relay_Control::control_relay(int relay_num, bool state){
             relay1 = state;
             relay2 = state;
             relay3 = state;
+            relay4 = state;
         case 1:
             relay1 = state;
             break;
@@ -55,6 +58,9 @@ void Relay_Control::control_relay(int relay_num, bool state){
             break;
         case 3:
             relay3 = state;
+            break;
+        case 4:
+            relay4 = state;
             break;
         default:
             break;
@@ -102,6 +108,12 @@ void Relay_Control::process_event(String event_title)
     } else {
         relay3 = false;
     }
+
+    if (event_title.indexOf("Pot") > -1) {
+        relay4 = true;
+    } else {
+        relay4 = false;
+    }
     
 }
 
@@ -142,6 +154,18 @@ bool Relay_Control::relay3TimerActive() {
     
 }
 
+bool Relay_Control::relay4TimerActive() {
+    bool isActive = false;
+    if (
+        relay4
+    ){
+        isActive = true;
+    } else { 
+        isActive = false;
+    }
+    return isActive;
+    
+}
 
 
 void Relay_Control::relay_loop()
@@ -185,6 +209,19 @@ void Relay_Control::relay_loop()
             DEBUG_PRINT("relay3 = OFF");
         }
         relay3_LastState = timerState;
+    }
+
+    timerState = relay4TimerActive();  //State Change method this block
+    if(timerState != relay4_LastState) {
+        delay(1000);
+        if(timerState) {
+            digitalWrite(RELAY4PIN, LOW);
+            DEBUG_PRINT("relay4 = ON");
+        } else {
+            digitalWrite(RELAY4PIN, HIGH);
+            DEBUG_PRINT("relay4 = OFF");
+        }
+        relay4_LastState = timerState;
     } 
 
 }
