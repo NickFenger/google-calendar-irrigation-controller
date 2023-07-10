@@ -54,7 +54,7 @@ STARTUP(WiFi.selectAntenna(ANT_EXTERNAL));
 
 char timeRemaining[128];
 char currentState[32];
-char lastEvent[128];
+char lastEvent[256];
 
 uint32_t freemem;
 
@@ -403,7 +403,7 @@ void calendar_handler(void)
                 //this will turn on any relays
                 change_app_stage_to(App_Stage::ACTIVE);
                 sprintf(currentState, "Actve: " + Calendar.get_event_title());
-                sprintf(lastEvent, Calendar.get_status_text() + " " + Calendar.get_event_title());
+                sprintf(lastEvent,"%s %s", Calendar.get_status_text().c_str(), Calendar.get_event_title().c_str());
                 //time_t time_status = Time.now();
                 //lastEvent = Time.format(time_status,"%Y-%m-%d %H:%M:%S");
                 //sprintf(lastEvent, Time.format(Calendar.get_event_start_datetime(),"%Y-%m-%d %H:%M"));
