@@ -378,6 +378,7 @@ void calendar_handler(void)
                 //this will turn on any relays
                 change_app_stage_to(App_Stage::ACTIVE);
                 sprintf(currentState, "Actve: " + Calendar.get_event_title());
+                delay(1000); //this might be necessary to update 2 variables at once
                 sprintf(lastEvent,"%s %s", Calendar.get_status_text().c_str(), Calendar.get_event_title().c_str());
                 //time_t time_status = Time.now();
                 //lastEvent = Time.format(time_status,"%Y-%m-%d %H:%M:%S");
