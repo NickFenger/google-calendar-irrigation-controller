@@ -7,7 +7,7 @@
 #define RELAY3PIN 6 //front yard
 #define RELAY4PIN 4 //potted flowers
 
-
+    
 
 //Constructor
 Relay_Control::Relay_Control(const int8_t &time_zone)
@@ -90,24 +90,28 @@ void Relay_Control::process_event(String event_title)
 {
     if (event_title.indexOf("Veg") > -1) {
         relay1 = true;
+        relay1_LastActive = Time.now();
     } else {
         relay1 = false;
     }
     
     if (event_title.indexOf("Tom") > -1) {
         relay2 = true;
+        relay2_LastActive = Time.now();
     } else {
         relay2 = false;
     }
     
     if (event_title.indexOf("Fro") > -1) {
         relay3 = true;
+        relay3_LastActive = Time.now();
     } else {
         relay3 = false;
     }
 
     if (event_title.indexOf("Pot") > -1) {
         relay4 = true;
+        relay4_LastActive = Time.now();
     } else {
         relay4 = false;
     }
@@ -164,6 +168,28 @@ bool Relay_Control::relay4TimerActive() {
     
 }
 
+
+time_t Relay_Control::relay_last_active_time(int relay_num) {
+    switch (relay_num)
+    {
+        case 1:
+            return relay1_LastActive;
+            break;
+        case 2:
+            return relay2_LastActive;
+            break;
+        case 3:
+            return relay3_LastActive;
+            break;
+        case 4:
+            return relay4_LastActive;
+            break;
+        default:
+            return 0;
+            break; 
+    }   
+
+}
 
 void Relay_Control::relay_loop()
 {

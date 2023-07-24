@@ -41,6 +41,7 @@ int relay_3_time(String cmd);
 int relay_4_time(String cmd);
 int force_erase_token(String cmd);
 void manual_relay_mode(int relay_num, int run_time);
+int last_event(String cmd);
 void update_time_remaining(unsigned long now);
 void loop();
 void oauth2_loop(void);
@@ -108,7 +109,7 @@ void setup()
     Particle.variable("Current State", currentState);
     //using this particle variable to track the amount of free memory available to the system.
     Particle.variable("Free Memory", freemem);
-    //Particle.variable("Last Event", lastEvent);
+    Particle.function("Last Event", last_event);  
  
     Particle.function("Read Calendar (1 read)", read_calendar);  
     Particle.function("Erase Token (1 erase)", force_erase_token); 
@@ -189,6 +190,15 @@ void manual_relay_mode(int relay_num, int run_time){
     polling_rate = (run_time *  60 * 1000);
     polling_time = millis();
     change_app_stage_to(App_Stage::MANUAL);
+}
+
+int last_event(String cmd) {
+    time_t last_active;
+     if (cmd.toInt() > 0) {
+        last_active = Control.relay_last_active_time(cmd.toInt());
+        DEBUG_PRINT(Time.format(last_active,"%Y-%m-%d %H:%M"));
+    }
+    return 0;
 }
 
 void update_time_remaining(unsigned long now) {

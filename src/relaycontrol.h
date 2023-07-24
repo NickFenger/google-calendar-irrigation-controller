@@ -20,6 +20,11 @@ class Relay_Control
         bool relay2;
         bool relay3;
         bool relay4;
+
+        time_t relay1_LastActive;
+        time_t relay2_LastActive;
+        time_t relay3_LastActive;
+        time_t relay4_LastActive;
             
         bool timerState;
         
@@ -46,6 +51,7 @@ class Relay_Control
         void relay_loop();
         
         void control_relay(int relay_num, bool state);
+        time_t relay_last_active_time(int relay_num);
 
  
 };
