@@ -22,14 +22,14 @@ https://console.cloud.google.com/apis/api/calendar-json.googleapis.com/credentia
 #include "http_status.h"
 
 
-#define DEBUG_PRINT(...) { Particle.publish( "DEBUG", String::format(__VA_ARGS__) ); }
+//#define DEBUG_PRINT(...) { Particle.publish( "DEBUG", String::format(__VA_ARGS__) ); }
 
 
 STARTUP(WiFi.selectAntenna(ANT_EXTERNAL)); 
 
 char timeRemaining[128];
 char currentState[32];
-char lastEvent[256];
+//char lastEvent[256];
 
 uint32_t freemem;
 
@@ -83,7 +83,7 @@ void setup()
     Particle.variable("Current State", currentState);
     //using this particle variable to track the amount of free memory available to the system.
     Particle.variable("Free Memory", freemem);
-    Particle.variable("Last Event", lastEvent);
+    //Particle.variable("Last Event", lastEvent);
  
     Particle.function("Read Calendar (1 read)", read_calendar);  
     Particle.function("Erase Token (1 erase)", force_erase_token); 
@@ -378,11 +378,12 @@ void calendar_handler(void)
                 //this will turn on any relays
                 change_app_stage_to(App_Stage::ACTIVE);
                 sprintf(currentState, "Actve: " + Calendar.get_event_title());
-                delay(1000); //this might be necessary to update 2 variables at once
-                sprintf(lastEvent,"%s %s", Calendar.get_status_text().c_str(), Calendar.get_event_title().c_str());
+                /* //delay(1000); //this might be necessary to update 2 variables at once
+                //sprintf(lastEvent,"%s %s", Calendar.get_status_text().c_str(), Calendar.get_event_title().c_str());
                 //time_t time_status = Time.now();
                 //lastEvent = Time.format(time_status,"%Y-%m-%d %H:%M:%S");
                 //sprintf(lastEvent, Time.format(Calendar.get_event_start_datetime(),"%Y-%m-%d %H:%M"));
+                */
             } else {
                 //Control.process_event( Calendar.get_event_title() );
                 change_app_stage_to(App_Stage::PENDING);

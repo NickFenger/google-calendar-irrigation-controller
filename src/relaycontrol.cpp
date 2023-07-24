@@ -88,9 +88,6 @@ void Relay_Control::setup_relays()  {
 }
 void Relay_Control::process_event(String event_title)
 {
-
-
-
     if (event_title.indexOf("Veg") > -1) {
         relay1 = true;
     } else {
