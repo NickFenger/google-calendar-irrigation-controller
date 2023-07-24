@@ -6,5 +6,6 @@
     },
     "particle.targetDevice": "44001c000351353530373132",
     "particle.firmwareVersion": "3.0.0",
-    "particle.targetPlatform": "photon"
+    "particle.targetPlatform": "photon",
+    "cmake.configureOnOpen": false
 }
