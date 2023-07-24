@@ -109,7 +109,7 @@ void setup()
     Particle.variable("Current State", currentState);
     //using this particle variable to track the amount of free memory available to the system.
     Particle.variable("Free Memory", freemem);
-    Particle.function("Last Event", last_event);  
+    Particle.function("Print Last Event (relay#/0 all)", last_event);  
  
     Particle.function("Read Calendar (1 read)", read_calendar);  
     Particle.function("Erase Token (1 erase)", force_erase_token); 
@@ -197,6 +197,11 @@ int last_event(String cmd) {
      if (cmd.toInt() > 0) {
         last_active = Control.relay_last_active_time(cmd.toInt());
         DEBUG_PRINT(Time.format(last_active,"%Y-%m-%d %H:%M"));
+    } else {
+        for (int i = 1; i < 5; i++) {
+            last_active = Control.relay_last_active_time(i);
+            DEBUG_PRINT(Time.format(last_active,"%Y-%m-%d %H:%M"));
+        }
     }
     return 0;
 }
