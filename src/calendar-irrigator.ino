@@ -83,7 +83,7 @@ void setup()
     Particle.variable("Current State", currentState);
     //using this particle variable to track the amount of free memory available to the system.
     Particle.variable("Free Memory", freemem);
-    Particle.function("Print Last Event (relay#/0 all)", last_event);  
+    Particle.function("Print Last Event (0 All or Num)", last_event);  
  
     Particle.function("Read Calendar (1 read)", read_calendar);  
     Particle.function("Erase Token (1 erase)", force_erase_token); 
@@ -168,12 +168,14 @@ void manual_relay_mode(int relay_num, int run_time){
 
 int last_event(String cmd) {
     time_t last_active;
-     if (cmd.toInt() > 0) {
+
+    if (cmd.toInt() > 0) {
         last_active = Control.relay_last_active_time(cmd.toInt());
         DEBUG_PRINT(Time.format(last_active,"%Y-%m-%d %H:%M"));
     } else {
         for (int i = 1; i < 5; i++) {
             last_active = Control.relay_last_active_time(i);
+            //delay(1000);
             DEBUG_PRINT(Time.format(last_active,"%Y-%m-%d %H:%M"));
         }
     }
